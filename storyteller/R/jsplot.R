@@ -5,26 +5,26 @@
 #' @return A jsplot object that represents a base plot to the dataset 
 #'         originally passed in as an argument.
 #' @export
-jsplot <- function(data, mapping = aes(), ...,
+jsplot <- function(data, ...,
                    environment = parent.frame()) {
    UseMethod("jsplot")
 }
 
-
+#' jsplot.default - error handling for creation of jsplot for non-dataframe type of object
+#'
 #' @export
-jsplot.default <- function(data, mapping = aes(), ...,
+jsplot.default <- function(data, ...,
                            environment = parent.frame()) {
    stop("jsplot doesn't know how to deal with type of data that is not a data frame")
 }
 
 #' @export
-jsplot.data.frame <- function(data, mapping = aes(), ...,
+jsplot.data.frame <- function(data, ...,
                               environment = parent.frame()) {
    
    p <- structure(list(
       data = data,
       layers = list(),
-      mapping = mapping,
       theme = list(),
       animations = list(),
       plot_env = environment

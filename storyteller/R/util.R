@@ -1,3 +1,6 @@
+# util.R - contains common functions needed to perform simple array operation such as 
+# containment checking.
+
 # contains check if the data frame contained in jsplot
 # contains all the column specified in names
 contains <- function(jsplot, names) {

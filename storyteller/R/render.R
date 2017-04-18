@@ -1,14 +1,23 @@
-#' <Add Title>
+#' render - renders the jsplot object into html widget output
 #'
 #' <Add Description>
 #'
 #' @import htmlwidgets
 #'
 #' @export
-render <- function(message, width = NULL, height = NULL, elementId = NULL) {
+render <- function(jsplot, width = NULL, height = NULL, elementId = NULL) {
 
-  # forward options using x
+  if (class(jsplot) != "jsplot") {
+     stop("render doesn't know how to deal with object that is not jsplot")
+  }
+   
+  # forward jsplot object into html widget
   x = list(
+    data = jsplot[["data"]],
+    layers = jsplot[["layers"]],
+    theme = jsplot[["theme"]],
+    animations = jsplot[["animations"]],
+    environment = jsplot[["plot_env"]],
     message = message
   )
 
