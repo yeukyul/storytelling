@@ -7,6 +7,7 @@
 render(jsplot, width = NULL, height = NULL, elementId = NULL)
 }
 \description{
-<Add Description>
+render accepts a layered jsplot and render a svg plot with specified
+layer using other jsfunctions.
 }
 

@@ -1,6 +1,6 @@
 
 #' @export
-svg_circle <- function(jsplot, x = c(), y = c(), r = 1) {
+svg_circle <- function(jsplot, data = NULL, x = c(), y = c(), r = 1, legend = TRUE, axis = TRUE) {
    
    # error handling
    if (class(jsplot) != "jsplot") {
@@ -21,7 +21,8 @@ svg_circle <- function(jsplot, x = c(), y = c(), r = 1) {
       y = y,
       r = r,
       animations = list(),
-      aes = "circle"
+      aes = "circle",
+      axis = axis
    ), class = c("svg_element"))
    
    # add newly created plot to jsplot

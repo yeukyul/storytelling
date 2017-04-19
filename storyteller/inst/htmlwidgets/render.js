@@ -18,18 +18,23 @@ HTMLWidgets.widget({
 
     return {
 
-      renderValue: function(x) {
-         var data = HTMLWidgets.dataframeToD3(x.data);
-         console.log(data);
-         console.log(x.layers);
-         console.log(x.theme);
-         console.log(x.animations);
+      renderValue: function(obj) {
+      
+         var data = HTMLWidgets.dataframeToD3(obj.data);
+         var x = d3.scale.linear()
+               .range([ 0, width - margin*2 ]);
+            
+         var y = d3.scale.linear()
+            .range([ height - margin*2, 0 ]);
          
          // iterate through all layers specified in the jsplot object
-         for (var i = 0; i < x.layers.length; i++) {
-            var thisLayer = x.layers[i];
+         for (var i = 0; i < obj.layers.length; i++) {
+            var thisLayer = obj.layers[i];
             if (thisLayer.aes == "circle") {
                renderScatterPlot(el, data, thisLayer);
+            }
+            if (thisLayer.aes == "line") {
+               renderLinePlot(el, data, thisLayer);
             }
          }
          
@@ -39,24 +44,42 @@ HTMLWidgets.widget({
             var x_var = layer.x;
             var y_var = layer.y;
             
-            var x = d3.scale.linear()
-               .range([ 0, width - margin*2 ]);
+            x.domain(d3.extent(data, function(d) { return d[x_var]; })).nice();
+            y.domain(d3.extent(data, function(d) { return d[y_var]; })).nice();
+         
+           svg.selectAll(".dot")
+               .data(data)
+               .enter().append("circle")
+               .attr("class", "dot")
+               .attr("cx", function(d) { return x(d[x_var]); })
+               .attr("cy", function(d) { return y(d[y_var]); })
+               .attr("r", 0)
+               .transition(200)
+               .attr("r", 3.5)
+               .attr("stroke", "#BE817F")
+               .attr("fill", "#BE817F");
             
-            var y = d3.scale.linear()
-               .range([ height - margin*2, 0 ]);
-               
-            var color = d3.scale.category10();
-            var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .orient("bottom");
-                        
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left");
+            if (layer.axis) {
+               addAxis(el, data, layer);
+            }
+         }
+         
+         function addAxis(el, data, layer) {
+            
+            var x_var = layer.x;
+            var y_var = layer.y;
             
             x.domain(d3.extent(data, function(d) { return d[x_var]; })).nice();
             y.domain(d3.extent(data, function(d) { return d[y_var]; })).nice();
             
+            var xAxis = d3.svg.axis()
+                           .scale(x)
+                           .orient("bottom");
+                        
+            var yAxis = d3.svg.axis()
+                           .scale(y)
+                           .orient("left");
+                           
             svg.append("g")
                .attr("class", "x axis")
                .attr("transform", "translate(0," + (height - margin*2) + ")")
@@ -66,9 +89,9 @@ HTMLWidgets.widget({
                .attr("x", (width - margin))
                .attr("y", -6)
                .style("text-anchor", "end")
-               .text("Sepal Width (cm)");
-         
-           svg.append("g")
+               .text("");
+            
+            svg.append("g")
                .attr("class", "y axis")
                .call(yAxis)
              .append("text")
@@ -77,41 +100,35 @@ HTMLWidgets.widget({
                .attr("y", 6)
                .attr("dy", ".71em")
                .style("text-anchor", "end")
-               .text("Sepal Length (cm)")
-         
-           svg.selectAll(".dot")
-               .data(data)
-               .enter().append("circle")
-               .attr("class", "dot")
-               .attr("r", 3.5)
-               .attr("cx", function(d) { return x(d[x_var]); })
-               .attr("cy", function(d) { return y(d[y_var]); });
-         
-           var legend = svg.selectAll(".legend")
-               .data(color.domain())
-               .enter().append("g")
-               .attr("class", "legend")
-               .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-         
-           legend.append("rect")
-               .attr("x", width - 18)
-               .attr("width", 18)
-               .attr("height", 18)
-               .style("fill", "lightgrey");
-         
-           legend.append("text")
-               .attr("x", width - 24)
-               .attr("y", 9)
-               .attr("dy", ".35em")
-               .style("text-anchor", "end")
-               .text(function(d) { return d; });          
-            
+               .text("");
          }
          
          // line plot renderer
          function renderLinePlot(el, data, layer) {
             
-         }
+            var x_var = layer.x;
+            var y_var = layer.y;
+            
+            // Define the line
+            var valueline = d3.svg.line()
+            	.x(function(d) { return x(d[x_var]); })
+            	.y(function(d) { return y(d[y_var]); });
+             
+         	// Scale the range of the data
+         	x.domain(d3.extent(data, function(d) { return d[x_var]; }));
+         	y.domain([0, d3.max(data, function(d) { return d[y_var]; })]);
+          
+         	// Add the valueline path.
+         	svg.append("path")	
+         		.attr("class", "line")
+         		.attr("d", valueline(data))
+         		.attr("fill", "lightgrey")
+         		.attr("stroke", "lightgrey");
+         		
+         	if (layer.axis) {
+         	   addAxis(el, data, layer);
+         	}
+          }
       },
 
       resize: function(width, height) {

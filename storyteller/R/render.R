@@ -1,6 +1,7 @@
 #' render - renders the jsplot object into html widget output
 #'
-#' <Add Description>
+#' render accepts a layered jsplot and render a svg plot with specified
+#' layer using other jsfunctions.
 #'
 #' @import htmlwidgets
 #'
